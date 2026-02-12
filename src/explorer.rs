@@ -8,7 +8,7 @@ pub struct Explorer {
 }
 
 impl Explorer {
-    pub fn set_path(&mut self, path: &Path) {
+    pub fn set_path(&mut self, path: PathBuf) {
         self.path = path.to_path_buf();
     }
     pub fn get_path(&self) -> &PathBuf {
