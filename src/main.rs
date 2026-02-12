@@ -1,28 +1,23 @@
-use std::io;
+use clap::Parser;
 use std::path::PathBuf;
-use tui::Terminal;
-use tui::backend::CrosstermBackend;
-use tui::widgets::{Block, Borders, List, ListItem};
+
+use crate::explorer::Explorer;
 
 mod explorer;
 
-fn main() -> Result<(), io::Error> {
-    let stdout = io::stdout();
-    let backend = CrosstermBackend::new(stdout);
-    let mut terminal = Terminal::new(backend)?;
+#[derive(Parser)]
+pub struct Args {
+    #[arg(short, long, default_value = ".")]
+    pub path: String,
+}
 
-    let my_dir = explorer::Explorer {
-        path: PathBuf::from(".."),
+fn main() {
+    let args = Args::parse();
+    let temp = Explorer {
+        path: PathBuf::from(args.path),
     };
-    let entries = my_dir.list_dict();
-    let items: Vec<ListItem> = entries.iter().map(|n| ListItem::new(n.as_str())).collect();
-
-    let list = List::new(items).block(Block::default().title("Files").borders(Borders::ALL));
-
-    terminal.draw(|f| {
-        let size = f.size();
-        f.render_widget(list, size);
-    })?;
-
-    Ok(())
+    let list = temp.list_dict();
+    for x in list {
+        println!("{x}");
+    }
 }
