@@ -2,6 +2,7 @@ use rustyline::hint::HistoryHinter;
 use rustyline::{completion::FilenameCompleter, CompletionType, Config, Editor};
 use rustyline_derive::{Completer, Helper, Highlighter, Hinter, Validator};
 use std::{env, fs, path::PathBuf};
+use walkdir::WalkDir;
 
 mod explorer;
 
@@ -49,7 +50,7 @@ fn main() {
         match command {
             "go" => {
                 env::set_current_dir(parts[1]).unwrap();
-                explorer_.set_path(PathBuf::from(parts[1]));
+                explorer_.set_path(PathBuf::from(env::current_dir().unwrap()));
             }
             "list" => {
                 let dict_files = explorer_.list_dict();
@@ -60,6 +61,24 @@ fn main() {
             }
             "move" => {
                 fs::rename(parts[1], parts[2]).unwrap();
+            }
+            "find" => {
+                let walker = WalkDir::new(env::current_dir().unwrap()).into_iter();
+
+                let finded_files: Vec<String> = walker
+                    .filter_map(|f| f.ok())
+                    .filter(|f| f.file_type().is_file())
+                    .filter_map(|f| {
+                        if f.file_name() == parts[1] {
+                            Some(f.path().display().to_string())
+                        } else {
+                            None
+                        }
+                    })
+                    .collect();
+                for file in finded_files {
+                    println!("Found: {}", file);
+                }
             }
             "quit" => {
                 break;

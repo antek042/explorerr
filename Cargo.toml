@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 rustyline = "14"
 rustyline-derive = "0.10"
+walkdir = "2"
