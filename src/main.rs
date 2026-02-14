@@ -63,13 +63,23 @@ fn main() {
                 fs::rename(parts[1], parts[2]).unwrap();
             }
             "find" => {
+                let pattern = parts[1];
                 let walker = WalkDir::new(env::current_dir().unwrap()).into_iter();
 
                 let finded_files: Vec<String> = walker
                     .filter_map(|f| f.ok())
                     .filter(|f| f.file_type().is_file())
                     .filter_map(|f| {
-                        if f.file_name() == parts[1] {
+                        let name = f.file_name().to_string_lossy();
+
+                        let matches = if pattern.starts_with('*') {
+                            let extension = &pattern[1..];
+                            name.ends_with(extension)
+                        } else {
+                            name == pattern
+                        };
+
+                        if matches {
                             Some(f.path().display().to_string())
                         } else {
                             None
